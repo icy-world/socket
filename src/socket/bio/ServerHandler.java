@@ -1,27 +1,37 @@
-package com.zhangricher.socket.bio;
+package socket.bio;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 /**
  * Created by root on 2018/1/14.
  */
-public class Client {
-    final static String ADDRESS = "127.0.0.1";
-    final static int PORT = 8765;
+public class ServerHandler implements Runnable{
+    private Socket socket;
 
-    public static void main(String[] args) {
-        Socket socket = null;
+    public ServerHandler(Socket socket) {
+        this.socket = socket;
+    }
+
+
+    @Override
+    public void run() {
         BufferedReader in = null;
         PrintWriter out = null;
         try {
-            socket = new Socket(ADDRESS,PORT);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            out = new PrintWriter(socket.getOutputStream(),true);//自动刷新刷新缓冲
-
-            out.println("服务端：客户端向服务端发送消息");
-            String response = in.readLine();
-            System.out.println("Client:" + response);
+            out = new PrintWriter(socket.getOutputStream(),true);
+            String line = null;
+            while (true){
+                line = in.readLine();
+                if(line == null)
+                    break;
+                System.out.println(line);
+                out.println("客户端：我收到了你的消息！");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }finally {
@@ -46,8 +56,6 @@ public class Client {
                     e.printStackTrace();
                 }
             }
-
         }
-
     }
 }
